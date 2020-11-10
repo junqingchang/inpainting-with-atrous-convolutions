@@ -5,19 +5,41 @@ from torch.utils.data import DataLoader
 from indoorscenerecognition import IndoorSceneRecognition
 from atrousinpainter import AtrousInpainter, Discriminator
 import os
+import matplotlib.pyplot as plt
 
 
 data_dir = 'data/indoorCVPR_09'
 model_dir = 'chkpt/'
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
+plots_dir = 'plots/'
+if not os.path.exists(plots_dir):
+    os.mkdir(plots_dir)
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda' if use_cuda else 'cpu')
 
 BATCH_SIZE = 4
 EPOCHS = 100
 LEARNING_RATE = 0.0001
-SAVE_EVERY = 1
+SAVE_EVERY = 10
+PLOT_EVERY = 10
+
+
+def visualise_progress(train_data, model, device, epoch):
+    model.eval()
+    for i in range(3):
+        data, target = train_data[i]
+        data = data.unsqueeze(0).to(device)
+        reconstructed_img = model(data).squeeze()
+        plt.subplot(3, 3, i*3+1)
+        plt.imshow(data.detach().squeeze().cpu().transpose(0, 1).transpose(1, 2))
+        plt.subplot(3, 3, i*3+2)
+        plt.imshow(target.transpose(0, 1).transpose(1, 2))
+        plt.subplot(3, 3, i*3+3)
+        plt.imshow(reconstructed_img.detach().cpu().transpose(0, 1).transpose(1, 2))
+    plt.savefig(os.path.join(plots_dir, f'epoch{epoch}progress'))
+    plt.close()
+
 
 
 def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criterion_R, criterion_G, print_every=100):
@@ -89,11 +111,42 @@ if __name__ == '__main__':
     optimizer_G = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     optimizer_D = optim.Adam(discrim.parameters(), lr=LEARNING_RATE)
 
+    r_losses = []
+    d_losses = []
+    g_losses = []
+
     for epoch in range(1, EPOCHS+1):
         r_loss, d_loss, g_loss = train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criterion_R, criterion_G)
+        r_losses.append(r_loss)
+        d_losses.append(d_loss)
+        g_losses.append(g_loss)
         print()
         print(f'Epoch {epoch}: R_Loss: {r_loss}, D_Loss: {d_loss}, G_Loss: {g_loss}')
+
+        plt.title('Reconstruction Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.plot(r_losses)
+        plt.savefig(os.path.join(plots_dir, 'r_loss.png'))
+        plt.close()
+
+        plt.title('Discriminator Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.plot(d_losses)
+        plt.savefig(os.path.join(plots_dir, 'd_loss.png'))
+        plt.close()
+
+        plt.title('Generator Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.plot(g_losses)
+        plt.savefig(os.path.join(plots_dir, 'g_loss.png'))
+        plt.close()
+
         if epoch % SAVE_EVERY == 0:
             torch.save(model, os.path.join(model_dir, f'generator-epoch{epoch}.pt'))
             torch.save(discrim, os.path.join(model_dir, f'discriminator-epoch{epoch}.pt'))
-        break
+
+        if epoch % PLOT_EVERY == 0:
+            visualise_progress(train_data, model, device, epoch)

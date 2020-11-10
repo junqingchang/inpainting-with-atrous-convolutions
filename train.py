@@ -89,7 +89,6 @@ def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criter
         
         if i % print_every == 0:
             print(f'{i}/{len(train_loader)} R_Loss: {reconstruction_loss.item()}, D_Loss: {discriminator_loss.item()}, G_Loss: {generation_loss.item()}')
-        break
 
     return total_r_loss/len(train_loader), total_d_loss/len(train_loader), total_g_loss/len(train_loader)
 

@@ -1,5 +1,6 @@
 data/
-chkpt/
+celebAchkpt/
+indoorchkpt/
 
 .vscode
 __pycache__/

@@ -1,16 +1,13 @@
 import torch
-from torch.utils.data import Dataset
-import os
-from PIL import Image
 import torchvision
+from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import random
 
 
-class IndoorSceneRecognition(Dataset):
+class CelebA(Dataset):
     def __init__(self, root, train_test='train', resize=(256, 256)):
-        self.root = root
-        self.train_test = train_test
+        self.dataset = torchvision.datasets.CelebA(root, split=train_test, target_type='attr')
         self.transform = MaskImage()
         self.target_transform = transforms.ToTensor()
         if resize:
@@ -18,29 +15,16 @@ class IndoorSceneRecognition(Dataset):
         else:
             self.resize = None
 
-        if self.train_test == 'train':
-            self.ref_file = os.path.join(self.root, 'TrainImages.txt')
-        else:
-            self.ref_file = os.path.join(self.root, 'TestImages.txt')
-        self.images_path = os.path.join(self.root, 'Images')
-        self.dataset = []
-        with open(self.ref_file, 'r') as f:
-            for line in f:
-                img_path = os.path.join(self.images_path, line.strip())
-                self.dataset.append(img_path)
-                
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        img_path = self.dataset[idx]
-        target = Image.open(img_path).convert('RGB')
+        target, _ = self.dataset[idx]
         if self.resize:
             target = self.resize(target)
         data = self.transform(target)
         target = self.target_transform(target)
         return data, target
-
 
 class MaskImage(object):
     def __init__(self, percentage=0.2):

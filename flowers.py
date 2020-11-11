@@ -1,30 +1,45 @@
 import torch
-import torchvision
 from torch.utils.data import Dataset
+import os
+from PIL import Image
+import torchvision
 import torchvision.transforms as transforms
 import random
 
 
-class CelebA(Dataset):
-    def __init__(self, root, train_test='train', resize=(256, 256)):
-        self.dataset = torchvision.datasets.CelebA(root, split=train_test, target_type='attr')
+class Flowers102(Dataset):
+    def __init__(self, root, split='train', resize=(256, 256)):
+        self.root = root
+        self.split = split
         self.transform = MaskImage()
         self.target_transform = transforms.ToTensor()
         if resize:
             self.resize = transforms.Resize(resize)
         else:
             self.resize = None
+        imgs = os.listdir(self.root)
+        num_imgs = len(imgs)
+        if split == 'train':
+            split_len = (0, int(num_imgs*0.7))
+        else:
+            split_len = (int(num_imgs*0.7), int(num_imgs*0.3))
+        split_imgs = imgs[split_len[0]:split_len[1]]
+        self.dataset = []
+        for i in range(len(split_imgs)):
+            self.dataset.append(os.path.join(self.root, split_imgs[i]))
 
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        target, _ = self.dataset[idx]
+        img_path = self.dataset[idx]
+        target = Image.open(img_path).convert('RGB')
         if self.resize:
             target = self.resize(target)
         data = self.transform(target)
         target = self.target_transform(target)
         return data, target
+
 
 class MaskImage(object):
     def __init__(self, percentage=0.2):

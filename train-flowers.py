@@ -2,17 +2,17 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from celeba import CelebA
+from flowers import Flowers102
 from atrousinpainter import AtrousInpainter, Discriminator
 import os
 import matplotlib.pyplot as plt
 
 
-data_dir = 'data/CelebA'
-model_dir = 'celebAchkpt/'
+data_dir = 'data/102flowers/jpg'
+model_dir = 'flowerschkpt/'
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
-plots_dir = 'celebAplots/'
+plots_dir = 'flowersplots/'
 if not os.path.exists(plots_dir):
     os.mkdir(plots_dir)
 use_cuda = torch.cuda.is_available()
@@ -42,7 +42,7 @@ def visualise_progress(train_data, model, device, epoch):
 
 
 
-def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criterion_R, criterion_G, print_every=1000):
+def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criterion_R, criterion_G, print_every=100):
     model.train()
     discrim.train()
     total_r_loss = 0
@@ -94,7 +94,7 @@ def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criter
 
 
 if __name__ == '__main__':
-    train_data = CelebA(data_dir)
+    train_data = Flowers102(data_dir)
 
     train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
 

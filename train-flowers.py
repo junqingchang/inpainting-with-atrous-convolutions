@@ -64,8 +64,10 @@ def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criter
         model.eval()
         reconstructed_img = model(data)
 
-        real_label = torch.ones((BATCH_SIZE, 1)).to(device)
-        fake_label = torch.zeros((BATCH_SIZE, 1)).to(device)
+        batch_size = data.shape[0]
+
+        real_label = torch.ones((batch_size, 1)).to(device)
+        fake_label = torch.zeros((batch_size, 1)).to(device)
 
         discrim_real = discrim(target)
         discrim_fake = discrim(reconstructed_img)
@@ -89,6 +91,7 @@ def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criter
         
         if i % print_every == 0:
             print(f'{i}/{len(train_loader)} R_Loss: {reconstruction_loss.item()}, D_Loss: {discriminator_loss.item()}, G_Loss: {generation_loss.item()}')
+        break
 
     return total_r_loss/len(train_loader), total_d_loss/len(train_loader), total_g_loss/len(train_loader)
 

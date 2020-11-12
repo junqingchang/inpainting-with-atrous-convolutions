@@ -64,8 +64,10 @@ def train(train_loader, model, discrim, optimizer_G, optimizer_D, device, criter
         model.eval()
         reconstructed_img = model(data)
 
-        real_label = torch.ones((BATCH_SIZE, 1)).to(device)
-        fake_label = torch.zeros((BATCH_SIZE, 1)).to(device)
+        batch_size = data.shape[0]
+
+        real_label = torch.ones((batch_size, 1)).to(device)
+        fake_label = torch.zeros((batch_size, 1)).to(device)
 
         discrim_real = discrim(target)
         discrim_fake = discrim(reconstructed_img)

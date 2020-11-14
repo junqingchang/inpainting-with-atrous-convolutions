@@ -20,7 +20,7 @@ device = torch.device('cuda' if use_cuda else 'cpu')
 
 BATCH_SIZE = 16
 EPOCHS = 100
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.00001
 SAVE_EVERY = 10
 PLOT_EVERY = 10
 

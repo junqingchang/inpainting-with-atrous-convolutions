@@ -18,9 +18,9 @@ if not os.path.exists(plots_dir):
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda' if use_cuda else 'cpu')
 
-BATCH_SIZE = 16
-EPOCHS = 100
-LEARNING_RATE = 0.00001
+BATCH_SIZE = 4
+EPOCHS = 200
+LEARNING_RATE = 0.0001
 SAVE_EVERY = 10
 PLOT_EVERY = 10
 

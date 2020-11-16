@@ -1,6 +1,7 @@
 data/
 flowerschkpt/
 indoorchkpt/
+flowerschkptretrain/
 
 .vscode
 __pycache__/

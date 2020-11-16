@@ -22,7 +22,7 @@ class Flowers102(Dataset):
         if split == 'train':
             split_len = (0, int(num_imgs*0.7))
         else:
-            split_len = (int(num_imgs*0.7), int(num_imgs*0.3))
+            split_len = (int(num_imgs*0.7), int(num_imgs))
         split_imgs = imgs[split_len[0]:split_len[1]]
         self.dataset = []
         for i in range(len(split_imgs)):
